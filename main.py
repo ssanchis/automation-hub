@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import os
 
 # Ruta del dataset y nombre de salida
-DATA_PATH = "tu_archivo.csv"
+DATA_PATH = "iris.csv"
 PDF_OUTPUT = "informe_eda.pdf"
 IMAGE_DIR = "eda_images"
 
@@ -49,7 +49,8 @@ pdf.add_page()
 
 # 1. Info básica
 pdf.chapter_title("1. Información general")
-pdf.chapter_body(eda.get_basic_info())
+info = eda.get_basic_info()
+pdf.chapter_body(info)
 
 # 2. Valores nulos
 pdf.chapter_title("2. Valores nulos")
@@ -78,10 +79,41 @@ hist_paths = eda.plot_histograms()
 for path in hist_paths:
     pdf.add_image(path)
 
-# 5. Correlación
-pdf.chapter_title("5. Matriz de correlación")
+# 5. Boxplots numéricos
+pdf.chapter_title("5. Boxplots de variables numéricas")
+box_paths = eda.plot_boxplots()
+for path in box_paths:
+    pdf.add_image(path)
+
+# 6. Matriz de correlación
+pdf.chapter_title("6. Matriz de correlación")
 corr_path = eda.plot_correlation_heatmap()
-pdf.add_image(corr_path)
+if corr_path:
+    pdf.add_image(corr_path)
+
+# 7. Pairplot numérico
+pdf.chapter_title("7. Pairplot de variables numéricas")
+pairplot_path = eda.plot_pairplot()
+if pairplot_path:
+    pdf.add_image(pairplot_path)
+
+# 8. Gráficos de categorías
+pdf.chapter_title("8. Conteo de categorías")
+cat_count_paths = eda.plot_categorical_counts()
+for path in cat_count_paths:
+    pdf.add_image(path)
+
+# 9. Boxplots categóricos
+pdf.chapter_title("9. Boxplots categórico-numéricos")
+cat_box_paths = eda.plot_categorical_boxplots()
+for path in cat_box_paths:
+    pdf.add_image(path)
+
+# 10. Pairplot categórico
+pdf.chapter_title("10. Pairplot categórico")
+cat_pairplot_path = eda.plot_categorical_pairplot()
+if cat_pairplot_path:
+    pdf.add_image(cat_pairplot_path)
 
 # Guardar el PDF
 pdf.output(PDF_OUTPUT)

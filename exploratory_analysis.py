@@ -11,7 +11,10 @@ class ExploratoryAnalysis:
         os.makedirs(image_dir, exist_ok=True)
 
     def get_basic_info(self):
-        info = f"Forma: {self.df.shape}\n\nTipos de datos:\n{self.df.dtypes}"
+        info = f"Forma: {self.df.shape},tenemos {self.df.shape[1]} columnas y {self.df.shape[0]} filas.\n\nTipos de datos:\n{self.df.dtypes}\n\n"
+        info += "Primeras filas:\n" + str(self.df.head()) + "\n\n"
+        info += "Columnas:\n" + str(self.df.columns.tolist()) + "\n\n"
+        info += "Tipos de datos únicos por columna:\n" + str(self.df.dtypes.value_counts()) + "\n\n"
         return info
 
     def get_null_summary(self):
@@ -34,15 +37,6 @@ class ExploratoryAnalysis:
             paths.append(img_path)
         return paths
 
-    def plot_correlation_heatmap(self):
-        corr = self.df.corr(numeric_only=True)
-        plt.figure(figsize=(6, 4))
-        sns.heatmap(corr, annot=True, cmap="coolwarm", fmt=".2f")
-        heatmap_path = os.path.join(self.image_dir, "corr_heatmap.png")
-        plt.savefig(heatmap_path, bbox_inches="tight")
-        plt.close()
-        return heatmap_path
-    ###
     def plot_boxplots(self, max_plots=3):
         num_cols = self.df.select_dtypes(include='number').columns[:max_plots]
         paths = []
@@ -55,7 +49,7 @@ class ExploratoryAnalysis:
             plt.close()
             paths.append(img_path)
         return paths
-    
+
     def plot_pairplot(self, max_vars=5):
         num_cols = self.df.select_dtypes(include='number').columns[:max_vars]
         if len(num_cols) > 1:
@@ -66,7 +60,16 @@ class ExploratoryAnalysis:
             return pairplot_path
         else:
             return None
-        
+
+    def plot_correlation_heatmap(self):
+        corr = self.df.corr(numeric_only=True)
+        plt.figure(figsize=(6, 4))
+        sns.heatmap(corr, annot=True, cmap="coolwarm", fmt=".2f")
+        heatmap_path = os.path.join(self.image_dir, "corr_heatmap.png")
+        plt.savefig(heatmap_path, bbox_inches="tight")
+        plt.close()
+        return heatmap_path
+
     def plot_categorical_counts(self, max_plots=3):
         cat_cols = self.df.select_dtypes(include='object').columns[:max_plots]
         paths = []
@@ -79,7 +82,7 @@ class ExploratoryAnalysis:
             plt.close()
             paths.append(img_path)
         return paths
-    
+
     def plot_categorical_boxplots(self, max_plots=3):
         cat_cols = self.df.select_dtypes(include='object').columns[:max_plots]
         num_cols = self.df.select_dtypes(include='number').columns[:max_plots]
@@ -94,7 +97,7 @@ class ExploratoryAnalysis:
                 plt.close()
                 paths.append(img_path)
         return paths
-    
+
     def plot_categorical_pairplot(self, max_vars=5):
         cat_cols = self.df.select_dtypes(include='object').columns[:max_vars]
         if len(cat_cols) > 1:
@@ -105,7 +108,7 @@ class ExploratoryAnalysis:
             return pairplot_path
         else:
             return None
-        
+
     def plot_all(self):
         all_paths = []
         all_paths.extend(self.plot_histograms())
@@ -122,47 +125,3 @@ class ExploratoryAnalysis:
         if cat_pairplot_path:
             all_paths.append(cat_pairplot_path)
         return all_paths
-    def save_all_plots(self, output_dir):
-        """
-        Save all plots to the specified directory.
-        
-        Parameters:
-        output_dir (str): Directory where plots will be saved.
-        
-        Returns:
-        list: List of paths to saved plot images.
-        """
-        os.makedirs(output_dir, exist_ok=True)
-        self.image_dir = output_dir
-        return self.plot_all()
-    def get_summary(self):
-        """
-        Generate a summary of the exploratory analysis.
-        Returns:
-        str: Summary text.
-        """
-        summary = []
-        summary.append("### Información General\n")
-        summary.append(self.get_basic_info())
-        summary.append("\n### Valores Nulos\n")
-        nulls = self.get_null_summary()
-        if not nulls.empty:
-            summary.append(str(nulls))
-        else:
-            summary.append("No hay valores nulos.")
-        summary.append("\n### Estadísticas Descriptivas\n")
-        desc_csv = os.path.join(self.image_dir, "desc.csv")
-        self.save_describe_table(desc_csv)
-        desc_df = pd.read_csv(desc_csv)
-        summary.append(desc_df.to_string(index=False))
-        return "\n".join(summary)
-    def save_summary(self, output_file):
-        """
-        Save the summary of the exploratory analysis to a text file.
-        Parameters:
-        output_file (str): Path to the output text file.
-        """
-        summary = self.get_summary()
-        with open(output_file, 'w') as f:
-            f.write(summary)
-        print(f"Resumen guardado en {output_file}")
