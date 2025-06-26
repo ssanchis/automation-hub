@@ -3,6 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import os
+from tabulate import tabulate
 
 class ExploratoryAnalysis:
     def __init__(self, df, image_dir="eda_images"):
@@ -10,11 +11,36 @@ class ExploratoryAnalysis:
         self.image_dir = image_dir
         os.makedirs(image_dir, exist_ok=True)
 
+    def describir_tipos_datos(self):
+        """
+        Describe los tipos de datos presentes en el DataFrame de forma legible.
+
+        Returns:
+        list: Una lista de descripciones legibles por tipo de dato.
+        """
+        descripciones = {
+            'object': 'variables categóricas o de texto',
+            'float64': 'variables numéricas decimales (float64)',
+            'int64': 'variables numéricas enteras',
+            'bool': 'variables booleanas (True/False)',
+            'datetime64[ns]': 'variables de fecha y hora'
+        }
+
+        conteo = self.df.dtypes.value_counts()
+        resultado = []
+
+        for tipo, cantidad in conteo.items():
+            descripcion = descripciones.get(str(tipo), f'variables de tipo {tipo}')
+            resultado.append(f"Tenemos {cantidad} {descripcion}.")
+
+        return resultado
+    
     def get_basic_info(self):
-        info = f"Forma: {self.df.shape},tenemos {self.df.shape[1]} columnas y {self.df.shape[0]} filas.\n\nTipos de datos:\n{self.df.dtypes}\n\n"
-        info += "Primeras filas:\n" + str(self.df.head()) + "\n\n"
-        info += "Columnas:\n" + str(self.df.columns.tolist()) + "\n\n"
-        info += "Tipos de datos únicos por columna:\n" + str(self.df.dtypes.value_counts()) + "\n\n"
+        info = f"El dataset contine {self.df.shape[0]} filas y {self.df.shape[1]} columnas.\n\n"
+        info += "Vista general de las primeras filas:\n"
+        info += self.df.head().to_string(index=False) + "\n\n"
+        info += "Tipos de datos:\n"
+        info += "\n".join(self.describir_tipos_datos())
         return info
 
     def get_null_summary(self):
