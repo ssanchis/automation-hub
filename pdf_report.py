@@ -3,11 +3,11 @@ from fpdf import FPDF
 
 class PDFReport(FPDF):
     def header(self):
-        self.set_font("Arial", "B", 12)
+        self.set_font("Times", "B", 16)
         self.cell(0, 10, "Análisis Exploratorio de Datos", ln=True, align="C")
 
     def chapter_title(self, title):
-        self.set_font("Arial", "B", 12)
+        self.set_font("Times", "B", 11)
         self.ln(10)
         self.cell(0, 10, title, ln=True)
 
@@ -15,9 +15,9 @@ class PDFReport(FPDF):
         partes = body.split('\n\n')
         for i, parte in enumerate(partes):
             if i == 0:  # info general en tamaño 12
-                self.set_font('Arial', '', 10)
+                self.set_font('Times', '', 9)
             else:         # detalles en tamaño 9, más pequeño
-                self.set_font('Arial', '', 9)
+                self.set_font('Times', '', 9)
             self.multi_cell(0, 8, parte)
             self.ln(2)
 

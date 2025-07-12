@@ -35,13 +35,48 @@ class ExploratoryAnalysis:
 
         return resultado
     
+    def dataframe_a_imagen(self,df, path='tabla.png', max_filas=5):
+        tabla = df.head(max_filas)
+
+        fig, ax = plt.subplots(figsize=(tabla.shape[1]*1.8, max_filas*0.6))
+        ax.axis('tight')
+        ax.axis('off')
+
+        # Crear tabla visual
+        tabla_plot = ax.table(
+            cellText=tabla.values,
+            colLabels=tabla.columns,
+            cellLoc='center',
+            loc='center'
+        )
+
+        tabla_plot.auto_set_font_size(False)
+        tabla_plot.set_fontsize(10)
+        tabla_plot.scale(1, 1.5)  # ajustar tamaño
+
+        plt.savefig(path, bbox_inches='tight', dpi=300)
+        plt.close()
+        return path
+    
     def get_basic_info(self):
-        info = f"El dataset contine {self.df.shape[0]} filas y {self.df.shape[1]} columnas.\n\n"
-        info += "Vista general de las primeras filas:\n"
-        info += self.df.head().to_string(index=False) + "\n\n"
-        info += "Tipos de datos:\n"
-        info += "\n".join(self.describir_tipos_datos())
+        num_filas, num_columnas = self.df.shape
+        tipos = self.df.dtypes
+        num_decimales = sum(t.name == "float64" for t in tipos)
+        num_categoricos = sum(t.name == "object" for t in tipos)
+
+        fila_txt = "fila" if num_filas == 1 else "filas"
+        col_txt = "columna" if num_columnas == 1 else "columnas"
+        dec_txt = "es" if num_decimales == 1 else "son"
+        cat_txt = "es" if num_categoricos == 1 else "son"
+
+        info += f"El dataset contiene {num_filas} {fila_txt} y {num_columnas} {col_txt}, "
+        info += f"de las cuales {num_decimales} {dec_txt} numéricas decimales (float64) "
+        info += f"y {num_categoricos} {cat_txt} categóricas.\n\n"
+        info += "A continuación se presentan las primeras filas del dataset:\n\n"
+        info += dataframe_a_imagen(self,self.df, path="tabla.png")
         return info
+    import matplotlib.pyplot as plt
+
 
     def get_null_summary(self):
         nulls = self.df.isnull().sum()
